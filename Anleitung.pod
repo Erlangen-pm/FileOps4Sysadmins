@@ -2,12 +2,24 @@
 
 =head1 Standardheader für Perl-Scripte
 
+Folgende Zeilen sollten jedes Perl-Script einleiten:
+
     #!/usr/bin/env perl
     use strict;
     use warnings;
     use utf8;
 
+Die erste Zeile sollte klar sein. 
+
+C<use strict;> führt die Behandlung ein, dass Variablen nicht einfach aus der Luft erzeugt werden, sondern immer deklariert werden müssen. Dieser Extraaufwand an Tipperei hilft, Vertippern vorzubeugen und erleichtert das Debugging enorm.
+
+C<use warnings;> zeigt zusätzlich Warnungen an, die auf übliche Programmierfehler hinweisen können, wenn C<perl> zum Beispiel Programmcode als gültig erachtet, aber durch den Datenfluss ungültige Daten (C<undef>-Werte in Stringverkettungen oder dergleichen) im Programm vorkommen. Derartige Probleme sind ebenfalls schwer zu debuggen bei komplexeren Datenflüssen.
+
+C<use utf8;> informiert C<perl> darüber, dass der Quelltext des Scriptes, also die Scriptdatei selber in UTF-8 codiert sind. Damit kann man innerhalb des Scriptes Sonderzeichen und Umlaute in Strings oder RegExes verwenden und diese werden intern korrekt behandelt. Aber Achtung! C<use utf8;> hat nichts mit der Ein- oder Ausgabe des Scriptes selber zu tun. Es handelt sich wirklich nur darum, festzulegen, wie die Scriptdatei selber codiert und behandelt wird. Das Encoding für Ein- und Ausgaben muss gesondert behandelt werden, je nach dem, wo die Daten herkommen oder wo die Daten hin gehen (Dateien, Netzwerk/HTTP, Datenbank). Außerdem muss selbstverständlich die Scriptdatei dann auch von Texteditor, den man verwendet, in UTF-8 geschrieben werden, sonst macht das ja auch wieder keinen Sinn.
+
 =head2 Erweiterung für Dateioperationen
+
+Folgende Module sind im Perl-Core mindestens seit Version 5.10.0 enthalten und erleichtern die Arbeit mit Dateien für portable und stabile Scripte. Für Scripte, die mit Dateien arbeiten müssen, sollten unbedingt diese Module verwendet werden. Irgendwelche Hacks mit Shellaufrufen und dergleichen sollten vermieden werden, da diese sehr stark vom Betriebssystem, der Umgebung und der Verfügbarkeit von Systemtools und Shells abhängen. Außerdem sind solche Hacks gegenüber Veränderungen der Umgebung sehr anfällig und es ist sehr schwer, mit derartigen Hacks stabile und zuverlässige Scripte mit einer verlässlichen Fehlerbehandlung zu erstellen. Also wenn Dateien behandelt werden sollen, ist man immer auf der sicheren Seite, wenn man sich der folgenden Module bedient.
 
     use File::Spec;
     use File::Temp;
