@@ -1,0 +1,34 @@
+=encoding utf8
+
+=head1 Standardheader für Perl-Scripte
+
+    #!/usr/bin/env perl
+    use strict;
+    use warnings;
+    use utf8;
+
+=head2 Erweiterung für Dateioperationen
+
+    use File::Spec;
+    use File::Temp;
+    use FindBin;
+    use File::Copy;
+    use File::Path;
+
+=head1 Lokale Bibliothek einbinden
+
+Wie binde ich einen Pfad zu Perl-Modulen unterhalb meines Projektverzeichnisses portabel ein. Im Beispiel heißt der Modulpfad C<projlib> und befindet sich direkt unterhalb des Pfades, in dem das Perlscript selber liegt.
+
+    use FindBin qw(Bin);
+    use File::Spec qw(splitpath catfile);
+    use lib catfile(splitpath($Bin), 'projlib'); 
+
+=head2 Die Scriptdatei selber liegt in einem Unterverzeichnis des Projektverzeichnisses
+
+Als Erweiterung des vorhergehenden Beispieles hier noch der Fall, wenn das Script, welches aufgerufen wird, selber in einem Unterverzeichniss im Projektordner liegt (im Beispiel C<projbin>). Die Bibliothek liegt ebenfalls in einem Unterverzeichniss parallel zu C<projbin>.
+
+    use FindBin qw(Bin);
+    use File::Spec qw(splitpath catfile);
+    use lib catfile(splitpath($Bin), '..', 'projlib'); # FIXME: Ist das so richtig, dass da einfach '..' drin steht, oder gibt es da etwas portableres? 
+
+=cut
