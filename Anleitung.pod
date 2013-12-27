@@ -8,6 +8,7 @@ Folgende Zeilen sollten jedes Perl-Script einleiten:
     use strict;
     use warnings;
     use utf8;
+    use 5.010;
 
 Die erste Zeile sollte klar sein. 
 
@@ -16,6 +17,8 @@ C<use strict;> führt die Behandlung ein, dass Variablen nicht einfach aus der L
 C<use warnings;> zeigt zusätzlich Warnungen an, die auf übliche Programmierfehler hinweisen können, wenn C<perl> zum Beispiel Programmcode als gültig erachtet, aber durch den Datenfluss ungültige Daten (C<undef>-Werte in Stringverkettungen oder dergleichen) im Programm vorkommen. Derartige Probleme sind ebenfalls schwer zu debuggen bei komplexeren Datenflüssen.
 
 C<use utf8;> informiert C<perl> darüber, dass der Quelltext des Scriptes, also die Scriptdatei selber in UTF-8 codiert sind. Damit kann man innerhalb des Scriptes Sonderzeichen und Umlaute in Strings oder RegExes verwenden und diese werden intern korrekt behandelt. Aber Achtung! C<use utf8;> hat nichts mit der Ein- oder Ausgabe des Scriptes selber zu tun. Es handelt sich wirklich nur darum, festzulegen, wie die Scriptdatei selber codiert und behandelt wird. Das Encoding für Ein- und Ausgaben muss gesondert behandelt werden, je nach dem, wo die Daten herkommen oder wo die Daten hin gehen (Dateien, Netzwerk/HTTP, Datenbank). Außerdem muss selbstverständlich die Scriptdatei dann auch von Texteditor, den man verwendet, in UTF-8 geschrieben werden, sonst macht das ja auch wieder keinen Sinn.
+
+C<use 5.010;> wird dazu verwendet, um eine Mindestversion von Perl vorzugeben, mit der das Script laufen soll. bei C<5.010> bricht das Script mit einer Fehlermeldung ab, wenn eine Version von Perl kleiner als 5.10.0 verwendet wird. 5.10.0 sollte aber mittlerweile auf jedem System zur Verfügung stehen. Ist das nicht der Fall, sollte man sich über ein Update gedanken machen, da 5.10.0 bereits über 7 Jahre alt ist und seit dem einige wichtige Änderungen in Perl hinein geflossen sind.
 
 =head2 Erweiterung für Dateioperationen
 
