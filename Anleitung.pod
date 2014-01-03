@@ -89,4 +89,50 @@ Um eine Datei komplett einzulesen, kann man den Eingabeseperator C<$/> auf C<und
 
 Alternativ gibt es auf CPAN auch das Modul L<File::Slurp>, welches diesen Zweck und noch viele weitere erfüllt.
 
+=head1 Auf Umgebungsvariablen zugreifen
+
+Jedes Perl-Programm hat automatisch Zugriff auf bestimmte globale Variablen. Eine der gängigsten ist dabei die Variable, welche Umgebungsvariablen des Systems bereit stellt. Diese Variable ist ein Hash und heißt C<%ENV>. Ein Hash deswegen, klar, weil das die Datenstruktur ist, in der Umgebungsvariablen als Schlüssel-Wert-Paare am besten dargestellt werden können. Auf die Daten der Variable kann einfach wir auf die Daten jedes anderen Hashes zugegriffen werden, C<$ENV{HOME}> liefert also das Home-Verzeichnis des Benutzers.
+
+C<%ENV> kann auch verändert werden, um zum Beispiel die Umgebung für das Perl-Script selber, andere Teile oder Module des Scriptes oder gar externe Programmaufrufe anzupassen. Die Änderungen gelten dann aber nur für das Script selber und beim Beenden des Scriptes stehen die Werte der Systemumgebung wieder so zur Verfügung, wie vor dem Aufruf des Scriptes.
+
+Beim Veränderung von Umgebungsvariablen innerhalb des Scriptes wird jeder dringend empfohlen, die Werte dynamisch in einem eigenen abgeschlossenen Scope mittels C<local> zu verändern, um eventuelle unbeabsichtigte Seiteneffekte zu vermeiden, welche subtile und schlecht zu findenende Fehler in das Programm einbringen. Die folgende Subroutine nimmt einen Dateinamen entgegen, den es auf nicht näher bekannte Weise in einen Pfad verwandelt. Dann soll diese Datei im Texteditor 'vim' geöffnet werden. Für das Öffnen der Datei steht uns eine Subroutine C<call_editor_on()> zur Verfügung, welche den in der Umgebungsvariable "EDITOR" hinterlegten Texteditor mit dem angegebenen Pfad öffnet. Damit diese Funktion aber den Texteditor 'vim' statt vielleicht 'emacs' verwendet, muss vorher die Umgebungsvariable umgesetzt werden. Das machen wir in einem extra Block C<{ ... }>, in dem wir den Hash-Wert C<$ENV{EDITOR}> mit C<local> verändern. Dieses Vorgehen mit extra Scope und C<local> dient dazu, damit bei späteren Aufrufen von C<call_editor_on()> die vom System vorgegebenen Umgebung wieder besteht und es zu keinen Überraschungen kommt.
+
+    sub edit_with_vim {
+        my $file = shift;
+        my $path = prepare_file($file);
+        {
+            local $ENV{EDITOR} = 'vim';
+            print "Textdatei in VIM öffnen\n";
+            call_editor_on($path);
+        }
+        print "Textdatei mit dem voreingestellten Editor öffnen\n";
+        call_editor_on($path);
+    }
+
+=head1 Verzeichnisinhalte auslesen
+
+Um Verzeichnisinhalte auszulesen gibt es zwei Wege. Zum einen ist da C<glob> (welches auch über den Operator C<< <> >> verfügbar ist, wie in  C<< <"*.txt"> >>). Der Operator C<< <...> >> ist bereits bekannt, um Dateiinhalte auszulesen. Das tut er, wenn ihm ein Filehandle übergeben wurde, dann ruft der im hintergrund C<readline> auf. Wird dem Operator jedoch ein String übergeben, dann wird dieser als File-Pattern ähnlich wie an einer Shell. Es kann nur ein String übergeben werden, dieser kann aber, durch Leerzeichen getrennt, mehrere Patterns enthalten, welche als "Oder-Verknüpfung" ausgeführt werden. Das Beispiel verdeutlicht das. C<glob> oder C<< <...> >> gibt eine Liste von Dateieinträgen zurück und arbeitet im aktuellen Arbeitsverzeichnis, welches mit C<chdir> gewechselt werden kann.
+
+    chdir "$ENV{HOME}/Bilder";
+    my @jpegs = <"*.jpg *.jpeg">;
+
+Dieses Beispiel wechselt in das Verzeichnis "Bilder" unterhalb des eigenen Home-Verzeichnisses und liefert eine Liste der Dateien, die auf ".jpg" oder ".jpeg" enden. Die Liste der Dateien wird im Beispiel in C<@jpegs> gespeichert und enthält nur die betreffenden Verzeichniseinträge (Dateinamen).
+
+=head2 Verzeichnisinhalte auslesen - der längere aber flexiblere Weg
+
+Um Verzeichnisinhalte auszulesen kann man außerdem die Funktionen C<opendir>, C<readdir> und C<closedir> verwenden. Das Beispiel macht im Prinzip das selbe, wie eben, nur kann man hier eben noch viel mehr Programmlogik unterbringen, wenn dafür Bedarf besteht, ich denke, das sieht man recht schnell. Außerdem ist C<opendir> nicht auf das aktuelle Arbeitsverzeichnis beschränkt und verändert dieses auch nicht im Programmkontext. Außerdem wird, wie beim Einlesen von Dateien, das Verzeichnishandle automatisch geschlossen, wenn es aus dem Scope fällt. Ein extra C<closedir> entfällt, wird aber dennoch empfohlen, damit das Programm klarer bleibt.
+
+    my @jpegs;
+    opendir my $dirhandle, $path
+      or die qq(Could not open path "$path": $!);
+    while ( my $file = readdir $dirhandle ) {
+        next unless $file =~ m/\A\./xms; # Versteckte Dateien werden ignoriert
+        next unless $file =~ m/\.jpg\z/xms or $file =~ m/\.jpeg\z/xms; # Ja, das geht auch schöner, aber so ist es deutlicher zu sehen
+        next unless -r catfile($path, $file); # Hier schaue ich, ob ich für diese Datei überhaupt Leseberechtigung habe, sonst wird die auch ignoriert
+        push @jpegs, $file;
+    }
+    closedir;
+
+=head1 Dateiinformationen auslesen und verwenden (-X)
+
 =cut
