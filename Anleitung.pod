@@ -30,6 +30,13 @@ Folgende Module sind im Perl-Core mindestens seit Version 5.10.0 enthalten und e
     use File::Copy;
     use File::Path;
 
+=head1 Der Pfad zum Script
+
+Der Aufrufpfad zum Script kann mit der Variable C<$0> abgefragt werden. Oftmals benötigt man jedoch den Pfad zum Script, zum Beispiel um mit Dateien und Verzeichnissen relativ zum Scriptpfad zu arbeiten. Dafür gibt es das Modul C<FindBin>. Diese Modul liefert die Variable C<$FindBin::Bin>, welche die Pfadangabe (absolut oder relativ, je nach dem, wie das Script aufgerufen wurde) zur Scriptdatei liefert. Um Tipparbeit zu sparen, kann man sich C<$FindBin::Bin> auch einfach in seinen Namensraum importieren, das geht dann so:
+
+    use FindBin qw(Bin);
+    print qq(Das Script liegt im Verzeichnis "$Bin");
+
 =head1 Lokale Bibliothek einbinden
 
 Wie binde ich einen Pfad zu Perl-Modulen unterhalb meines Projektverzeichnisses portabel ein. Im Beispiel heißt der Modulpfad C<projlib> und befindet sich direkt unterhalb des Pfades, in dem das Perlscript selber liegt.
@@ -134,5 +141,13 @@ Um Verzeichnisinhalte auszulesen kann man außerdem die Funktionen C<opendir>, C
     closedir;
 
 =head1 Dateiinformationen auslesen und verwenden (-X)
+
+=head1 Dateien schreiben
+
+Dateien werden automatisch angelegt, wenn sie geöffnet und beschrieben werden.
+
+=head1 Dateien, Verzeichnisse und Pfade erstellen, kopieren und löschen
+
+=head1 Arbeiten mit Temporären Dateien und Verzeichnissen
 
 =cut
