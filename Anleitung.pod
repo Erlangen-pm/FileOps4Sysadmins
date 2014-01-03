@@ -102,6 +102,8 @@ Jedes Perl-Programm hat automatisch Zugriff auf bestimmte globale Variablen. Ein
 
 C<%ENV> kann auch verändert werden, um zum Beispiel die Umgebung für das Perl-Script selber, andere Teile oder Module des Scriptes oder gar externe Programmaufrufe anzupassen. Die Änderungen gelten dann aber nur für das Script selber und beim Beenden des Scriptes stehen die Werte der Systemumgebung wieder so zur Verfügung, wie vor dem Aufruf des Scriptes.
 
+=head2 Umgebungsvariablen verändern
+
 Beim Veränderung von Umgebungsvariablen innerhalb des Scriptes wird jeder dringend empfohlen, die Werte dynamisch in einem eigenen abgeschlossenen Scope mittels C<local> zu verändern, um eventuelle unbeabsichtigte Seiteneffekte zu vermeiden, welche subtile und schlecht zu findenende Fehler in das Programm einbringen. Die folgende Subroutine nimmt einen Dateinamen entgegen, den es auf nicht näher bekannte Weise in einen Pfad verwandelt. Dann soll diese Datei im Texteditor 'vim' geöffnet werden. Für das Öffnen der Datei steht uns eine Subroutine C<call_editor_on()> zur Verfügung, welche den in der Umgebungsvariable "EDITOR" hinterlegten Texteditor mit dem angegebenen Pfad öffnet. Damit diese Funktion aber den Texteditor 'vim' statt vielleicht 'emacs' verwendet, muss vorher die Umgebungsvariable umgesetzt werden. Das machen wir in einem extra Block C<{ ... }>, in dem wir den Hash-Wert C<$ENV{EDITOR}> mit C<local> verändern. Dieses Vorgehen mit extra Scope und C<local> dient dazu, damit bei späteren Aufrufen von C<call_editor_on()> die vom System vorgegebenen Umgebung wieder besteht und es zu keinen Überraschungen kommt.
 
     sub edit_with_vim {
